@@ -54,7 +54,7 @@ function initMap() {
         } else if (e.layerType === 'marker') {
             const pointId = `point-${points.length + 1}`;
             layer.pointId = pointId;
-            const pointType = document.getElementById('point-type')?.value || 'monitoring';
+            const pointType = 'monitoring'; // default type, or you can implement logic to choose type here
             const popupContent = `
                 <div>
                     <label>Nome do Ponto:</label><br>
