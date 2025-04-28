@@ -547,7 +547,7 @@ window.updateMetadataTable = function() {
             <tr>
                 <th>Ponto</th>
                 <th>Data</th>
-                ${points.find(p => p.id === (tbody.children[0]?.querySelector('select')?.value || points[0]?.id))?.type === 'monitoring' ? `
+                ${tbody.children.length > 0 && points.find(p => p.id === tbody.children[0].querySelector('select')?.value)?.type === 'monitoring' ? `
                     <th>Temp (°C)</th>
                     <th>pH</th>
                 ` : `
