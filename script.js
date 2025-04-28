@@ -922,6 +922,7 @@ function updateTemporalPlot() {
     }
 
     const layout = {
+        autosize: true,
         title: `Evolução Temporal: Índices, Físico-Químicos e Metagenômicos`,
         xaxis: { title: 'Data' },
         yaxis: { title: indexName !== 'Nenhum' ? `Índice ${indexName}` : 'RGB', domain: [0.55, 1] },
