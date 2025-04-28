@@ -64,35 +64,23 @@
                     </div>
                 </div>
 
-                <button class="nav-item collapsed" onclick="toggleSection('regions-panel')">
+                <button class="nav-item collapsed" onclick="toggleSection('regions-points-panel')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 12h.01M12 6h.01M12 18h.01"/>
                     </svg>
-                    <span>Regiões</span>
+                    <span>Regiões e Pontos</span>
                     <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M6 9l6 6 6-6"/>
                     </svg>
                 </button>
-                <div class="sub-panel" id="regions-panel">
-                    <div id="regions-list">Nenhuma região desenhada.</div>
-                </div>
-
-                <button class="nav-item collapsed" onclick="toggleSection('points-panel')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    </svg>
-                    <span>Pontos</span>
-                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                </button>
-                <div class="sub-panel" id="points-panel">
+                <div class="sub-panel" id="regions-points-panel">
                     <div class="point-type-toggle">
                         <button id="point-type-monitoring" class="point-type-btn active" onclick="setPointType('monitoring')">Monitoramento</button>
                         <button id="point-type-metagenomic" class="point-type-btn" onclick="setPointType('metagenomic')">Metagenômico</button>
                     </div>
                     <button id="toggle-point-draw" onclick="togglePointDrawMode()">Ativar Modo de Adição de Ponto</button>
                     <div id="point-type-indicator">Tipo selecionado: Monitoramento</div>
+                    <div id="regions-list">Nenhuma região desenhada.</div>
                     <div id="points-list">Nenhum ponto adicionado.</div>
                 </div>
             </div>

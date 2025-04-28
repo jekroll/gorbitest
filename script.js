@@ -672,6 +672,7 @@ window.removeRegion = function(regionId) {
         updateTemporalPlot();
         document.getElementById('debug-info').textContent = `Região ${regionId} removida.`;
     }
+    updateRegionsPointsList();
 };
 
 // Remover ponto
@@ -685,6 +686,7 @@ window.removePoint = function(pointId) {
         updateTemporalPlot();
         document.getElementById('debug-info').textContent = `Ponto ${pointId} removido.`;
     }
+    updateRegionsPointsList();
 };
 
 // Atualizar lista de regiões
