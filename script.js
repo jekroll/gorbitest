@@ -54,12 +54,16 @@ function initMap() {
         } else if (e.layerType === 'marker') {
             const pointId = `point-${points.length + 1}`;
             layer.pointId = pointId;
-            const pointType = document.getElementById('point-type').value;
+            const pointType = document.getElementById('point-type').value || 'monitoring';
             const popupContent = `
                 <div>
                     <label>Nome do Ponto:</label><br>
                     <input type="text" id="point-name-${pointId}" value="${pointId}">
                     <button onclick="savePointName('${pointId}')">Salvar</button>
+                    <hr>
+                    <label>Metadados:</label><br>
+                    <textarea id="point-metadata-${pointId}" rows="4" style="width: 100%;" placeholder="Insira metadados JSON aqui"></textarea><br>
+                    <button onclick="savePointMetadata('${pointId}')">Salvar Metadados</button>
                 </div>
             `;
             layer.bindPopup(popupContent).openPopup();
@@ -639,6 +643,24 @@ window.savePointName = function(pointId) {
     }
 };
 
+// Salvar metadados do ponto
+window.savePointMetadata = function(pointId) {
+    const textarea = document.getElementById(`point-metadata-${pointId}`);
+    const point = points.find(p => p.id === pointId);
+    if (point && textarea) {
+        try {
+            const parsed = JSON.parse(textarea.value);
+            point.metadata = parsed;
+            metadata.points[pointId] = parsed;
+            updateTemporalPlot();
+            document.getElementById('debug-info').textContent = `Metadados do ponto ${pointId} atualizados.`;
+            alert('Metadados salvos com sucesso.');
+        } catch (e) {
+            alert('Erro ao salvar metadados: JSON inválido.');
+        }
+    }
+};
+
 // Remover região
 window.removeRegion = function(regionId) {
     const region = regions.find(r => r.id === regionId);
@@ -920,6 +942,40 @@ function updateTemporalPlot() {
         });
         yAxisCount++;
     }
+
+    // Add custom metadata traces for points if available
+    points.forEach(point => {
+        if (point.metadata && Array.isArray(point.metadata)) {
+            // Expecting metadata as array of objects with date and numeric fields
+            const keys = new Set();
+            point.metadata.forEach(entry => {
+                Object.keys(entry).forEach(k => {
+                    if (k !== 'date') keys.add(k);
+                });
+            });
+            keys.forEach(key => {
+                const dates = [];
+                const values = [];
+                point.metadata.forEach(entry => {
+                    if (entry.date && entry[key] !== undefined && entry[key] !== null && !isNaN(entry[key])) {
+                        dates.push(entry.date);
+                        values.push(parseFloat(entry[key]));
+                    }
+                });
+                if (dates.length > 0) {
+                    traces.push({
+                        x: dates,
+                        y: values,
+                        mode: 'lines+markers',
+                        name: `${point.name}: ${key}`,
+                        line: { dash: 'dot' },
+                        yaxis: 'y' + yAxisCount
+                    });
+                    yAxisCount++;
+                }
+            });
+        }
+    });
 
     const layout = {
         //autosize: true,
