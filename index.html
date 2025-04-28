@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador Multispectral Temporal</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">Visualizador</h1>
+                <button id="toggleSidebar" class="sidebar-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-items">
+                <button class="nav-item" onclick="toggleSection('images-panel')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    </svg>
+                    <span>Carregar Imagens</span>
+                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="sub-panel expanded" id="images-panel">
+                    <input type="file" id="json-file" accept=".json,.tif,.tiff" multiple>
+                    <input type="file" id="udm-file" accept=".tif,.tiff" multiple>
+                    <button id="add-images-btn" onclick="addImage()">Adicionar Imagens</button>
+                    <div id="images-list">Nenhuma imagem carregada.</div>
+                </div>
+
+                <button class="nav-item collapsed" onclick="toggleSection('metadata-panel')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18M9 18V9M15 18V6"/>
+                    </svg>
+                    <span>Metadados</span>
+                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="sub-panel" id="metadata-panel">
+                    <select id="metadata-type" onchange="updateMetadataTable()">
+                        <option value="areas">Áreas</option>
+                        <option value="points">Pontos</option>
+                    </select>
+                    <div id="metadata-form">
+                        <label for="metadata-point-select">Ponto:</label>
+                        <select id="metadata-point-select" onchange="updateMetadataTable()"></select>
+                        <table id="metadata-table">
+                            <thead id="metadata-table-head"></thead>
+                            <tbody id="metadata-table-body"></tbody>
+                        </table>
+                        <button onclick="addMetadataRow()">Adicionar Linha</button>
+                        <button onclick="saveMetadata()">Salvar Metadados</button>
+                        <div id="metadata-feedback" class="feedback"></div>
+                    </div>
+                </div>
+
+                <button class="nav-item collapsed" onclick="toggleSection('regions-panel')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 12h.01M12 6h.01M12 18h.01"/>
+                    </svg>
+                    <span>Regiões</span>
+                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="sub-panel" id="regions-panel">
+                    <div id="regions-list">Nenhuma região desenhada.</div>
+                </div>
+
+                <button class="nav-item collapsed" onclick="toggleSection('points-panel')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                    </svg>
+                    <span>Pontos</span>
+                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="sub-panel" id="points-panel">
+                    <div class="point-type-toggle">
+                        <button id="point-type-monitoring" class="point-type-btn active" onclick="setPointType('monitoring')">Monitoramento</button>
+                        <button id="point-type-metagenomic" class="point-type-btn" onclick="setPointType('metagenomic')">Metagenômico</button>
+                    </div>
+                    <button id="toggle-point-draw" onclick="togglePointDrawMode()">Ativar Modo de Adição de Ponto</button>
+                    <div id="point-type-indicator">Tipo selecionado: Monitoramento</div>
+                    <div id="points-list">Nenhum ponto adicionado.</div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="info-container">
+                    <div class="info-item">
+                        <span class="label">Data:</span>
+                        <span id="current-date">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Imagens:</span>
+                        <span id="image-count">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Pixel:</span>
+                        <span id="pixel-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Debug:</span>
+                        <span id="debug-info">-</span>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="document.getElementById('json-file').click()">Adicionar Imagens</button>
+            </div>
+
+            <main class="content">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="hover-controls">
+                        <div class="timeline-controls">
+                            <div class="left-controls">
+                                <div class="index-controls">
+                                    <select id="index-select" onchange="updateIndex()">
+                                        <option value="Nenhum">Nenhum</option>
+                                        <option value="NDVI">NDVI</option>
+                                        <option value="SAVI">SAVI</option>
+                                        <option value="EVI">EVI</option>
+                                        <option value="NDWI">NDWI</option>
+                                        <option value="NDCI">NDCI</option>
+                                        <option value="NDTI">NDTI</option>
+                                        <option value="FAI">FAI</option>
+                                        <option value="SABI">SABI</option>
+                                        <option value="ARI">ARI</option>
+                                        <option value="PRI">PRI (Aproximado)</option>
+                                    </select>
+                                    <div id="index-description"></div>
+                                </div>
+                                <input type="range" id="timeline-slider" min="0" max="0" value="0" oninput="selectImageByIndex(this.value)">
+                                <button id="play-button" onclick="togglePlay()">Play</button>
+                                <input type="number" id="play-interval" value="2" min="0.5" step="0.5">
+                                <div class="plot-controls">
+                                    <label><input type="checkbox" id="toggle-indices" checked> Índices Espectrais</label>
+                                    <label><input type="checkbox" id="toggle-physicochemical" checked> Físico-Químicos</label>
+                                    <label><input type="checkbox" id="toggle-metagenomic" checked> Metagenômicos</label>
+                                </div>
+                            </div>
+                            <div class="weather-info" id="weather-info">
+                                <div class="weather-item">
+                                    <span>Temperatura:</span>
+                                    <span class="value" id="current-temperature">-</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span>pH:</span>
+                                    <span class="value" id="current-ph">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="temporal-plot"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
