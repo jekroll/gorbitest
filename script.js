@@ -60,6 +60,12 @@ function initMap() {
                     <label>Nome do Ponto:</label><br>
                     <input type="text" id="point-name-${pointId}" value="${pointId}">
                     <button onclick="savePointName('${pointId}')">Salvar</button>
+                    <br><br>
+                    <label>Tipo do Ponto:</label><br>
+                    <select id="point-type-${pointId}">
+                        <option value="monitoring" selected>Monitoramento</option>
+                        <option value="metagenomic">Metagenômico</option>
+                    </select>
                     <hr>
                     <label>Metadados:</label><br>
                     <textarea id="point-metadata-${pointId}" rows="4" style="width: 100%;" placeholder="Insira metadados JSON aqui"></textarea><br>
@@ -630,17 +636,18 @@ window.saveRegionName = function(regionId) {
     }
 };
 
-// Salvar nome do ponto
 window.savePointName = function(pointId) {
     const input = document.getElementById(`point-name-${pointId}`);
+    const select = document.getElementById(`point-type-${pointId}`);
     const point = points.find(p => p.id === pointId);
-    if (point && input) {
+    if (point && input && select) {
         point.name = input.value || pointId;
+        point.type = select.value || 'monitoring';
         point.layer.closePopup();
         calculatePointValues(point.layer);
         updatePointsList();
         updateTemporalPlot();
-        document.getElementById('debug-info').textContent = `Nome do ponto ${pointId} atualizado para ${point.name}.`;
+        document.getElementById('debug-info').textContent = `Nome e tipo do ponto ${pointId} atualizados para ${point.name} (${point.type}).`;
     }
 };
 
