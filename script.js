@@ -928,7 +928,7 @@ function updateTemporalPlot() {
         yaxis2: indexName === 'Nenhum' ? { title: 'RGB', domain: [0.33, 0.65], overlaying: 'y' } : { title: 'Físico-Químicos', domain: [0.33, 0.65] },
         yaxis3: { title: 'Metagenômicos', domain: [0, 0.32] },
         margin: { t: 90, b: 30, l: 50, r: 50 }, // aumentei o 'b' para dar espaço pro título dos eixos
-        height: 500,
+        height: 400,
         showlegend: true,
         legend: { x: 1, xanchor: 'right', y: 1 }
     };
