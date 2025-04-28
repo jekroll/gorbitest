@@ -54,7 +54,7 @@ function initMap() {
         } else if (e.layerType === 'marker') {
             const pointId = `point-${points.length + 1}`;
             layer.pointId = pointId;
-            const pointType = document.getElementById('point-type').value || 'monitoring';
+            const pointType = document.getElementById('point-type')?.value || 'monitoring';
             const popupContent = `
                 <div>
                     <label>Nome do Ponto:</label><br>
@@ -506,11 +506,7 @@ window.addMetadataRow = function() {
     tbody.appendChild(row);
     updateMetadataTable();
 };
-```
 
-script.js
-```javascript
-<<<<<<< SEARCH
 // Atualizar metadados da tabela
 window.updateMetadataTable = function() {
     const metadataType = document.getElementById('metadata-type').value;
@@ -596,90 +592,6 @@ window.updateMetadataTable = function() {
     document.getElementById('debug-info').textContent = `Metadados ${metadataType} atualizados.`;
 };
 
-// Atualizar metadados da tabela
-window.updateMetadataTable = function() {
-    const metadataType = document.getElementById('metadata-type').value;
-    const thead = document.getElementById('metadata-table-head');
-    const tbody = document.getElementById('metadata-table-body');
-
-    if (metadataType === 'areas') {
-        thead.innerHTML = `
-            <tr>
-                <th>Data</th>
-                <th>Temp (°C)</th>
-                <th>pH</th>
-                <th>NDVI</th>
-            </tr>
-        `;
-        metadata.areas = [];
-        for (const row of tbody.children) {
-            const inputs = row.getElementsByTagName('input');
-            const date = inputs[0].value;
-            const temperature = inputs[1].value;
-            const ph = inputs[2].value;
-            const ndvi = inputs[3].value;
-            if (date) {
-                metadata.areas.push({
-                    date,
-                    temperature: temperature ? parseFloat(temperature) : null,
-                    ph: ph ? parseFloat(ph) : null,
-                    ndvi: ndvi ? parseFloat(ndvi) : null
-                });
-            }
-        }
-    } else {
-        thead.innerHTML = `
-            <tr>
-                <th>Ponto</th>
-                <th>Data</th>
-                ${points.find(p => p.id === (tbody.children[0]?.querySelector('select')?.value || points[0]?.id))?.type === 'monitoring' ? `
-                    <th>Temp (°C)</th>
-                    <th>pH</th>
-                ` : `
-                    <th>Resist. Seca</th>
-                    <th>Prot. Fungos</th>
-                    <th>Cresc. Raízes</th>
-                `}
-            </tr>
-        `;
-        for (const point of points) {
-            metadata.points[point.id] = [];
-        }
-        for (const row of tbody.children) {
-            const select = row.getElementsByTagName('select')[0];
-            const inputs = row.getElementsByTagName('input');
-            const pointId = select.value;
-            const date = inputs[0].value;
-            if (points.find(p => p.id === pointId)?.type === 'monitoring') {
-                const temperature = inputs[1].value;
-                const ph = inputs[2].value;
-                if (date) {
-                    metadata.points[pointId].push({
-                        date,
-                        temperature: temperature ? parseFloat(temperature) : null,
-                        ph: ph ? parseFloat(ph) : null
-                    });
-                }
-            } else {
-                const droughtResistance = inputs[1].value;
-                const fungalProtection = inputs[2].value;
-                const rootGrowth = inputs[3].value;
-                if (date) {
-                    metadata.points[pointId].push({
-                        date,
-                        droughtResistance: droughtResistance ? parseFloat(droughtResistance) : null,
-                        fungalProtection: fungalProtection ? parseFloat(fungalProtection) : null,
-                        rootGrowth: rootGrowth ? parseFloat(rootGrowth) : null
-                    });
-                }
-            }
-        }
-    }
-
-    updateTemporalPlot();
-    updateWeatherInfo();
-    document.getElementById('debug-info').textContent = `Metadados ${metadataType} atualizados.`;
-};
 
 // Aplicar máscara UDM
 function applyMask(imageObj) {
