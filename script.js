@@ -924,15 +924,15 @@ function updateTemporalPlot() {
     const layout = {
         autosize: true,
         title: `Evolução Temporal: Índices, Físico-Químicos e Metagenômicos`,
-        xaxis: { title: 'Data' },
-        yaxis: { title: indexName !== 'Nenhum' ? `Índice ${indexName}` : 'RGB', domain: [0.55, 1] },
-        yaxis2: indexName === 'Nenhum' ? { title: 'RGB', domain: [0.55, 1], overlaying: 'y' } : { title: 'Físico-Químicos', domain: [0.25, 0.5] },
-        yaxis3: { title: 'Metagenômicos', domain: [0, 0.2] },
-        margin: { t: 50, b: 50, l: 50, r: 50 },
-        height: 400,
+        yaxis: { title: indexName !== 'Nenhum' ? `Índice ${indexName}` : 'RGB', domain: [0.66, 1] },
+        yaxis2: indexName === 'Nenhum' ? { title: 'RGB', domain: [0.33, 0.65], overlaying: 'y' } : { title: 'Físico-Químicos', domain: [0.33, 0.65] },
+        yaxis3: { title: 'Metagenômicos', domain: [0, 0.32] },
+        margin: { t: 90, b: 30, l: 50, r: 50 }, // aumentei o 'b' para dar espaço pro título dos eixos
+        height: 500,
         showlegend: true,
         legend: { x: 1, xanchor: 'right', y: 1 }
     };
+    
 
     Plotly.newPlot('temporal-plot', traces, layout);
 }
