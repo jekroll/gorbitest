@@ -418,11 +418,11 @@ function updateImagesList() {
     listDiv.innerHTML = html;
 }
 
-// Atualizar lista de pontos
 function updatePointsList() {
     const listDiv = document.getElementById('points-list');
     if (points.length === 0) {
         listDiv.innerHTML = 'Nenhum ponto adicionado.';
+        updateMetadataPointSelect();
         return;
     }
     let html = '<ul>';
@@ -434,7 +434,97 @@ function updatePointsList() {
     });
     html += '</ul>';
     listDiv.innerHTML = html;
+    updateMetadataPointSelect();
 }
+
+// Atualizar select de pontos na seção de metadados
+function updateMetadataPointSelect() {
+    const select = document.getElementById('metadata-point-select');
+    if (!select) return;
+    // Limpar opções atuais
+    select.innerHTML = '';
+    // Adicionar regiões
+    regions.forEach(region => {
+        const option = document.createElement('option');
+        option.value = region.id;
+        option.textContent = `Região: ${region.name}`;
+        select.appendChild(option);
+    });
+    // Adicionar pontos
+    points.forEach(point => {
+        const option = document.createElement('option');
+        option.value = point.id;
+        option.textContent = `Ponto: ${point.name}`;
+        select.appendChild(option);
+    });
+    // Atualizar tabela de metadados para o item selecionado
+    updateMetadataTable();
+}
+
+// Modificar funções de adicionar/remover regiões e pontos para atualizar o select
+
+// Salvar nome da região
+window.saveRegionName = function(regionId) {
+    const input = document.getElementById(`region-name-${regionId}`);
+    const region = regions.find(r => r.id === regionId);
+    if (region && input) {
+        region.name = input.value || regionId;
+        region.layer.closePopup();
+        calculateRegionMeans(region.layer);
+        updateRegionsList();
+        updatePointsList();
+        updateMetadataPointSelect();
+        updateTemporalPlot();
+        document.getElementById('debug-info').textContent = `Nome da região ${regionId} atualizado para ${region.name}.`;
+    }
+};
+
+// Remover região
+window.removeRegion = function(regionId) {
+    const region = regions.find(r => r.id === regionId);
+    if (region) {
+        drawnItems.removeLayer(region.layer);
+        regions = regions.filter(r => r.id !== regionId);
+        updateRegionsList();
+        updatePointsList();
+        updateMetadataPointSelect();
+        updateTemporalPlot();
+        document.getElementById('debug-info').textContent = `Região ${regionId} removida.`;
+    }
+    updateRegionsPointsList();
+};
+
+// Salvar nome do ponto
+window.savePointName = function(pointId) {
+    const input = document.getElementById(`point-name-${pointId}`);
+    const selectType = document.getElementById(`point-type-${pointId}`);
+    const point = points.find(p => p.id === pointId);
+    if (point && input && selectType) {
+        point.name = input.value || pointId;
+        point.type = selectType.value || 'monitoring';
+        point.layer.closePopup();
+        calculatePointValues(point.layer);
+        updatePointsList();
+        updateMetadataPointSelect();
+        updateTemporalPlot();
+        document.getElementById('debug-info').textContent = `Nome e tipo do ponto ${pointId} atualizados para ${point.name} (${point.type}).`;
+    }
+};
+
+// Remover ponto
+window.removePoint = function(pointId) {
+    const point = points.find(p => p.id === pointId);
+    if (point) {
+        drawnItems.removeLayer(point.layer);
+        points = points.filter(p => p.id !== pointId);
+        delete metadata.points[pointId];
+        updatePointsList();
+        updateMetadataPointSelect();
+        updateTemporalPlot();
+        document.getElementById('debug-info').textContent = `Ponto ${pointId} removido.`;
+    }
+    updateRegionsPointsList();
+};
 
 // Atualizar slider da linha do tempo
 function updateTimelineSlider() {
